@@ -1,0 +1,22 @@
+/* Honeypot: must render (some bots skip display:none) but be invisible and
+   unreachable to real users/keyboard nav. */
+.scc-honeypot {
+	position: absolute;
+	left: -9999px;
+	top: -9999px;
+	height: 0;
+	width: 0;
+	overflow: hidden;
+}
+
+.scc-form-status {
+	margin-top: 0.75em;
+	font-size: 0.95em;
+}
+.scc-form-status[data-type="success"] {
+	color: #1a7f37;
+}
+.scc-form-status[data-type="error"] {
+	color: #c62828;
+}
+

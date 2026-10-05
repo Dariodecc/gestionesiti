@@ -1,0 +1,175 @@
+/* Editor inline Site Core: gli stili si vedono solo quando l'editor e' attivo
+   (gli span .scc-editable esistono solo in quel caso). */
+.scc-editable {
+	outline: 1px dashed rgba( 37, 99, 235, 0.55 );
+	outline-offset: 2px;
+	cursor: text;
+	border-radius: 2px;
+	transition: outline-color 0.15s ease, background-color 0.15s ease;
+}
+.scc-editable:hover {
+	outline-color: rgba( 37, 99, 235, 0.9 );
+	background-color: rgba( 37, 99, 235, 0.06 );
+}
+.scc-editable:focus {
+	outline: 2px solid #2563eb;
+	background-color: rgba( 37, 99, 235, 0.08 );
+}
+.scc-editable.scc-saving {
+	opacity: 0.6;
+}
+.scc-editable.scc-saved {
+	outline-color: #1a7f37;
+	background-color: rgba( 26, 127, 55, 0.12 );
+}
+.scc-editable.scc-error {
+	outline-color: #c62828;
+	background-color: rgba( 198, 40, 40, 0.12 );
+}
+
+
+/* Pannello larghezza/altezza del box di testo (2.7.0) */
+.scc-style-panel {
+	position: absolute;
+	z-index: 100000;
+	/* Sempre display:flex (mai none): il pannello deve restare misurabile
+	   (offsetHeight) anche mentre e' nascosto, altrimenti il posizionamento
+	   in JS lo calcola con altezza 0 e il pannello salta fuori nel posto
+	   sbagliato al primo click. Nascosto tramite visibility/opacity, non
+	   display. */
+	display: flex;
+	gap: 6px;
+	padding: 4px 8px;
+	background: #1f2937;
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba( 0, 0, 0, 0.25 );
+	font-size: 12px;
+	visibility: hidden;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.12s ease;
+}
+.scc-style-panel.is-visible {
+	visibility: visible;
+	opacity: 1;
+	pointer-events: auto;
+}
+.scc-style-panel label {
+	color: #d1d5db;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+.scc-style-panel input {
+	width: 68px;
+	font-size: 12px;
+	padding: 2px 4px;
+	border: 1px solid #4b5563;
+	border-radius: 3px;
+}
+
+/* Immagini editabili (2.7.0) */
+.scc-editable-image {
+	position: relative;
+	outline: 1px dashed rgba( 37, 99, 235, 0.55 );
+	outline-offset: 2px;
+	border-radius: 2px;
+	transition: outline-color 0.15s ease, background-color 0.15s ease;
+}
+.scc-editable-image:hover {
+	outline-color: rgba( 37, 99, 235, 0.9 );
+	background-color: rgba( 37, 99, 235, 0.06 );
+}
+.scc-editable-image.scc-saving {
+	opacity: 0.6;
+}
+.scc-editable-image.scc-saved {
+	outline-color: #1a7f37;
+	background-color: rgba( 26, 127, 55, 0.12 );
+}
+.scc-editable-image.scc-error {
+	outline-color: #c62828;
+	background-color: rgba( 198, 40, 40, 0.12 );
+}
+.scc-image-edit-btn {
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	z-index: 10;
+	padding: 4px 10px;
+	font-size: 12px;
+	background: #1f2937;
+	color: #fff;
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+}
+.scc-editable-image:hover .scc-image-edit-btn,
+.scc-editable-image:hover .scc-image-align-controls {
+	opacity: 1;
+}
+.scc-image-align-controls {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 10;
+	display: flex;
+	gap: 2px;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+}
+.scc-image-align-controls button {
+	width: 24px;
+	height: 24px;
+	font-size: 12px;
+	background: #1f2937;
+	color: #fff;
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+}
+
+/* Riempimento (object-fit) e rotazione - solo sull'immagine, mai sul box
+   che la contiene (2.7.4). Stessa logica hover-reveal degli altri controlli. */
+.scc-image-extra-controls {
+	position: absolute;
+	bottom: 8px;
+	left: 8px;
+	right: 8px;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 6px;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+}
+.scc-editable-image:hover .scc-image-extra-controls {
+	opacity: 1;
+}
+.scc-image-rotate-btn {
+	width: 24px;
+	height: 24px;
+	flex: 0 0 auto;
+	font-size: 14px;
+	line-height: 1;
+	background: #1f2937;
+	color: #fff;
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+}
+.scc-image-fit-select {
+	flex: 0 1 auto;
+	max-width: 60%;
+	font-size: 11px;
+	padding: 3px 4px;
+	background: #1f2937;
+	color: #fff;
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+}
+
