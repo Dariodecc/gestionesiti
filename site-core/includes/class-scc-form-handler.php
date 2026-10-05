@@ -136,6 +136,14 @@ class SCC_Form_Handler {
 			self::send_webhook( $form_config['webhook_url'], $slug, $entry_id, $clean_data );
 		}
 
+		// 8b. Email (dalla 2.18.0): notifica e conferma. Un errore qui non
+		// blocca la risposta, la entry e' gia' salvata; resta nel registro.
+		if ( ! empty( $form_config['mail_enabled'] ) || ! empty( $form_config['confirm_enabled'] ) ) {
+			foreach ( SCC_Mailer::send_for_submission( $slug, $entry_id, $clean_data, $form_config, $config ) as $esito ) {
+				self::log( $entry_id, $slug, $esito[0], $esito[1], $esito[2] );
+			}
+		}
+
 		// 9. Response, per Form Configuration's success behavior.
 		$response = array(
 			'success'     => true,

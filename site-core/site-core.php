@@ -2,12 +2,19 @@
 /**
  * Plugin Name: Site Core
  * Description: Native form engine (registry, handler, entries + logs, admin config) for hand-built WordPress sites. No third-party form plugin dependency.
- * Version: 2.17.0
+ * Version: 2.18.0
  * Author: Dario D'Ecclesiis
  * Text Domain: site-core
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Update URI: https://gestionesiti.growbe.cloud/site-core
+ *
+ * v2.18.0: Posta dei form (SCC_Mailer). SMTP di sito configurabile da Form Configuration (password cifrata, mai mostrata, con
+ * email di prova); per ogni form: notifica con destinatari, mittente (email e nome), modalita' di risposta (la casella accetta
+ * risposte / Reply-To al visitatore / no-reply), oggetto e messaggio con segnaposto {campo}, {all_fields}, {form_label},
+ * {site_name}, {site_url}, {entry_id}, {date}, e conferma opzionale al visitatore. L'esito entra nel registro delle fasi
+ * (mail, mail_confirm) e un errore di invio non blocca il form. Nessuna migrazione: le chiavi nuove hanno valori predefiniti.
+ * MCP: sitecore_get_form/sitecore_update_form leggono e scrivono i campi di posta, nuovo sitecore_get_smtp (senza password).
  *
  * v2.17.0: Due attivatori MCP indipendenti nell'HUB. L'accesso CLIENTE (mcp-access/check, invariato) governa gli account
  * WordPress del cliente; il nuovo accesso SVILUPPO (developer-access/check) governa un account dedicato, "growbe-developer"
@@ -163,7 +170,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SCC_VERSION', '2.17.0' );
+define( 'SCC_VERSION', '2.18.0' );
 define( 'SCC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SCC_URL', plugin_dir_url( __FILE__ ) );
 
@@ -171,6 +178,7 @@ require_once SCC_PATH . 'includes/class-scc-install.php';
 require_once SCC_PATH . 'includes/class-scc-upgrade.php';
 require_once SCC_PATH . 'includes/class-scc-updater.php';
 require_once SCC_PATH . 'includes/class-scc-form-registry.php';
+require_once SCC_PATH . 'includes/class-scc-mailer.php';
 require_once SCC_PATH . 'includes/class-scc-form-handler.php';
 require_once SCC_PATH . 'includes/class-scc-rest-controller.php';
 require_once SCC_PATH . 'includes/class-scc-admin.php';
@@ -217,6 +225,7 @@ function scc_enqueue_form_assets() {
 }
 add_action( 'wp_enqueue_scripts', 'scc_enqueue_form_assets' );
 
+SCC_Mailer::init();
 new SCC_REST_Controller();
 new SCC_Admin();
 new SCC_Site_Content();

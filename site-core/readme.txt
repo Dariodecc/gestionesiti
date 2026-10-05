@@ -3,7 +3,7 @@ Contributors: dario
 Requires at least: 6.4
 Tested up to: 7.0.4
 Requires PHP: 8.0
-Stable tag: 2.17.0
+Stable tag: 2.18.0
 License: GPLv2 or later
 
 Native form engine for hand-built WordPress sites. No Elementor, no
@@ -40,6 +40,13 @@ small, auditable dependency regardless of which build pipeline a given site
 uses.
 
 == Changelog ==
+
+= 2.18.0 =
+* Posta dei form. In Form Configuration compare la sezione SMTP (server, porta, cifratura, utente, password cifrata, mittente predefinito, email di prova): se attiva, tutte le email del sito partono da li'.
+* Per ogni form: notifica via email con destinatari, mittente (email e nome), gestione delle risposte (la casella accetta risposte, Reply-To al visitatore, oppure no-reply), oggetto e messaggio con segnaposto ({campo}, {all_fields}, {form_label}, {site_name}, {site_url}, {entry_id}, {date}), testo o HTML. Conferma opzionale al visitatore.
+* L'esito dell'invio entra nel registro del form (fasi mail e mail_confirm); un errore di invio non blocca il form.
+* MCP: sitecore_get_form e sitecore_update_form gestiscono i campi di posta; nuovo sitecore_get_smtp (mai la password: l'SMTP si imposta solo da bacheca).
+* Nessuna migrazione: i form esistenti restano senza email finche' non la si attiva.
 
 = 2.17.0 =
 * Due attivatori MCP indipendenti nell'HUB: l'accesso Cliente (invariato) e il nuovo accesso Sviluppo, che governa un account dedicato ("growbe-developer") usato da OpenCode tramite il bridge. Spegnere l'accesso del cliente non interrompe più lo sviluppo e un sito nuovo non resta bloccato.

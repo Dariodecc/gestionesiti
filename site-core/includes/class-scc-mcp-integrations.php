@@ -5,6 +5,7 @@ final class SCC_MCP_Integrations {
     private static $internal_route='';
     public static function internal_request($route){return self::$internal_route!==''&&self::$internal_route===$route;}
     private static function text($max=2000){return SCC_Dev_Schema::text($max);}
+    private static function mail_schema(){$t=self::text();$b=array('type'=>'boolean');return array('mail_enabled'=>$b,'mail_to'=>self::text(500),'mail_from_email'=>self::text(200),'mail_from_name'=>self::text(200),'mail_reply_mode'=>self::enum(array('sender','visitor','noreply')),'mail_reply_field'=>self::text(100),'mail_subject'=>self::text(300),'mail_body'=>self::text(12000),'mail_html'=>$b,'confirm_enabled'=>$b,'confirm_to_field'=>self::text(100),'confirm_subject'=>self::text(300),'confirm_body'=>self::text(12000));}
     private static function id(){return array('type'=>'integer','minimum'=>1);}
     private static function enum($values){return array('type'=>'string','enum'=>$values);}
     private static function fields($fields){return SCC_Dev_Schema::object($fields);}
@@ -61,7 +62,8 @@ final class SCC_MCP_Integrations {
         if(class_exists('SCC_Form_Registry')){
             $add('sitecore_list_forms','Elenca i form custom registrati dal tema o dai plugin.','manage_options');
             $add('sitecore_get_form','Schema campi e configurazione pubblicabile del form custom; nessuna submission o segreto webhook.','manage_options',array('slug'=>self::text(100)),array('slug'));
-            $add('sitecore_update_form','Modifica messaggio, trasporto e redirect del form custom. Non riscrive il codice del tema né la definizione dei campi.','manage_options',array('slug'=>self::text(100),'data'=>self::fields(array('success_message'=>$text,'transport'=>self::enum(array('ajax','php')),'success_behavior'=>self::enum(array('inline','redirect')),'success_redirect'=>self::text(1000)))),array('slug','data'),true);
+            $add('sitecore_get_smtp','Impostazioni SMTP del sito, senza password (solo password_set).','manage_options');
+            $add('sitecore_update_form','Modifica messaggio, trasporto, redirect e posta (mittente, destinatari, risposte, oggetto e testo delle email) del form custom. Non riscrive il codice del tema né la definizione dei campi. La password SMTP non è gestibile da qui.','manage_options',array('slug'=>self::text(100),'data'=>self::fields(array('success_message'=>$text,'transport'=>self::enum(array('ajax','php')),'success_behavior'=>self::enum(array('inline','redirect')),'success_redirect'=>self::text(1000))+self::mail_schema())),array('slug','data'),true);
         }
         if(class_exists('WooCommerce')){
             $product=array('name'=>self::text(300),'slug'=>self::text(200),'status'=>self::enum(array('draft','pending','private','publish')),'description'=>self::text(15000),'short_description'=>self::text(3000),'sku'=>self::text(100),'regular_price'=>array('type'=>'string','pattern'=>'^[0-9]+([.][0-9]+)?$'),'sale_price'=>array('type'=>'string','pattern'=>'^([0-9]+([.][0-9]+)?)?$'),'manage_stock'=>$bool,'stock_quantity'=>array('type'=>'integer','minimum'=>0),'stock_status'=>self::enum(array('instock','outofstock','onbackorder')),'virtual'=>$bool);
@@ -179,14 +181,15 @@ final class SCC_MCP_Integrations {
         $id=$f->save();return $id?array('id'=>(int)$id):new WP_Error('save_failed','Salvataggio CF7 non riuscito.');
     }
     private static function custom($name,$a){
+        if($name==='sitecore_get_smtp')return SCC_Mailer::get_smtp_public();
         if($name==='sitecore_list_forms'){$out=array();foreach(SCC_Form_Registry::get_all() as $slug=>$f)$out[]=array('slug'=>$slug,'label'=>$f['label'],'field_count'=>count($f['fields']));return $out;}
         $slug=sanitize_key($a['slug']);$form=SCC_Form_Registry::get($slug);if(!$form)return new WP_Error('not_found','Form non registrato.');$config=SCC_Admin::get_form_config($slug);
-        $keys=array('success_message','transport','success_behavior','success_redirect');
+        $keys=array_merge(array('success_message','transport','success_behavior','success_redirect'),SCC_Mailer::mail_keys());
         if($name==='sitecore_get_form'){$fields=array();foreach($form['fields'] as $key=>$f)$fields[$key]=array_intersect_key($f,array_flip(array('type','required','label','options','min','max','maxlength')));return array('slug'=>$slug,'label'=>$form['label'],'fields'=>$fields,'configuration'=>array_intersect_key($config,array_flip($keys)),'webhook_enabled'=>!empty($config['webhook_enabled']));}
         $d=$a['data'];if(!$d)return new WP_Error('empty_update','Specifica almeno un campo.');
-        if(array_diff(array_keys($d),array('success_message'))&&class_exists('SCC_License')&&!SCC_License::is_active())return new WP_Error('license_required','Licenza attiva richiesta per trasporto e redirect.');
+        if(array_diff(array_keys($d),array_merge(array('success_message'),SCC_Mailer::mail_keys()))&&class_exists('SCC_License')&&!SCC_License::is_active())return new WP_Error('license_required','Licenza attiva richiesta per trasporto e redirect.');
         if(!empty($d['success_redirect'])){$url=wp_parse_url($d['success_redirect']);$home=wp_parse_url(home_url());if(!$url||($url['scheme']??'')!=='https'||($url['host']??'')!==$home['host']||isset($url['user'])||isset($url['pass'])||($url['port']??443)!==($home['port']??443))return new WP_Error('invalid_redirect','Redirect HTTPS dello stesso sito richiesto.');}
-        if(isset($d['success_message']))$d['success_message']=sanitize_text_field($d['success_message']);
+        if(isset($d['success_message']))$d['success_message']=sanitize_text_field($d['success_message']);$d=array_merge(array_diff_key($d,array_flip(SCC_Mailer::mail_keys())),SCC_Mailer::sanitize_form_mail(array_intersect_key($d,array_flip(SCC_Mailer::mail_keys()))));
         $all=SCC_Admin::get_all_form_configs();$all[$slug]=array_replace($config,$d);update_option(SCC_Admin::OPTION_KEY,$all);return array('slug'=>$slug,'updated'=>true);
     }
     private static function polylang($name,$a){
