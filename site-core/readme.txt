@@ -42,6 +42,7 @@ uses.
 == Changelog ==
 
 = 2.18.0 =
+* Il battito ora porta anche l'indirizzo pubblico del sito (campo "url"): l'hub lo recupera da solo al primo battito, senza doverlo scrivere alla creazione del sito.
 * Posta dei form. In Form Configuration compare la sezione SMTP (server, porta, cifratura, utente, password cifrata, mittente predefinito, email di prova): se attiva, tutte le email del sito partono da li'.
 * Per ogni form: notifica via email con destinatari, mittente (email e nome), gestione delle risposte (la casella accetta risposte, Reply-To al visitatore, oppure no-reply), oggetto e messaggio con segnaposto ({campo}, {all_fields}, {form_label}, {site_name}, {site_url}, {entry_id}, {date}), testo o HTML. Conferma opzionale al visitatore.
 * L'esito dell'invio entra nel registro del form (fasi mail e mail_confirm); un errore di invio non blocca il form.

@@ -411,6 +411,9 @@ public function __construct() {
 		$tema = wp_get_theme();
 
 		$dati = array(
+			// Indirizzo pubblico del sito: l'hub lo legge al primo battito
+			// cosi' chi crea il sito non deve scriverlo a mano.
+			'url'       => home_url( '/' ),
 			'wp'        => get_bloginfo( 'version' ),
 			'php'       => PHP_VERSION,
 			'site_core' => defined( 'SCC_VERSION' ) ? SCC_VERSION : '',
